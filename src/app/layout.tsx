@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Nunito } from "next/font/google"
 import { ClerkProvider } from '@clerk/nextjs'
+import { ThemeProvider } from 'next-themes'
 
 import "./globals.css"
 
@@ -26,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <head>
           <link rel="icon" href="/favicon.ico" />
           <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png" />
@@ -50,7 +51,14 @@ export default function RootLayout({
         <body
           className={nunito.className}
         >
-          {children}
+          <ThemeProvider
+            attribute='class'
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
