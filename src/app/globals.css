@@ -71,3 +71,38 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Scrollbar styles  */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--card);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #0e3358;
+  border-radius: 10px;
+  opacity: 0.8;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #0e3358;
+  opacity: 0.8;
+  cursor: grab;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(14, 51, 88, 0.5) transparent;
+}
