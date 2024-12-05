@@ -28,9 +28,9 @@ export const personalInfoSchema = z.object({
   country: optionalString,
   phone: optionalString,
   email: optionalString,
-  websiteUrl: optionalString,
-  linkedinUrl: optionalString,
-  githubUrl: optionalString,
+  websiteUrl: z.string().url().trim().optional().or(z.literal("")),
+  linkedinUrl: z.string().url().trim().optional().or(z.literal("")),
+  githubUrl: z.string().url().trim().optional().or(z.literal("")),
 })
 
 export type PersonalInfoValues = z.infer<typeof personalInfoSchema>
@@ -65,6 +65,24 @@ export const educationSchema = z.object({
 })
 
 export type EducationValues = z.infer<typeof educationSchema>
+
+export const personalProjectsSchema = z.object({
+  projects: z
+    .array(
+      z.object({
+        name: optionalString,
+        description: optionalString,
+        startDate: optionalString,
+        endDate: optionalString,
+        linkDeploy: z.string().url().trim().optional().or(z.literal("")),
+        linkCode: z.string().url().trim().optional().or(z.literal("")),
+        technologies: z.array(z.string().trim()).optional(),
+      }),
+    )
+    .optional(),
+})
+
+export type PersonalProjectsValues = z.infer<typeof personalProjectsSchema>
 
 export const skillsSchema = z.object({
   skills: z.array(z.string().trim()).optional(),
@@ -103,6 +121,7 @@ export const resumeSchema = z.object({
   ...personalInfoSchema.shape,
   ...workExperienceSchema.shape,
   ...educationSchema.shape,
+  ...personalProjectsSchema.shape,
   ...skillsSchema.shape,
   ...languagesSchema.shape,
   ...summarySchema.shape,
