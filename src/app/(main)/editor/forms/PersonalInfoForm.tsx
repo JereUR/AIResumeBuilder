@@ -7,6 +7,7 @@ import { useEffect } from "react"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -174,7 +175,7 @@ export default function PersonalInfoForm({
             name="githubUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Github URL</FormLabel>
+                <FormLabel>Github URL <span className="text-muted-foreground">*</span></FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -187,7 +188,7 @@ export default function PersonalInfoForm({
             name="linkedinUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Linkedin URL</FormLabel>
+                <FormLabel>Linkedin URL <span className="text-muted-foreground">*</span></FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -200,7 +201,7 @@ export default function PersonalInfoForm({
             name="websiteUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Website URL</FormLabel>
+                <FormLabel>Website URL <span className="text-muted-foreground">*</span></FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -208,6 +209,9 @@ export default function PersonalInfoForm({
               </FormItem>
             )}
           />
+          <FormDescription>
+            * Please enter a valid URL, starting with <strong>http://</strong> or <strong>https://</strong>. For example: <em>https://www.example.com</em>.
+          </FormDescription>
         </form>
       </Form>
     </div>
