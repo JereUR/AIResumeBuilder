@@ -37,6 +37,8 @@ model Resume {
 
   workExperiences WorkExperience[]
   education       Education[]
+  skills          String[]
+  languages       Language[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -77,4 +79,26 @@ model Education {
   updatedAt DateTime @updatedAt
 
   @@map("educations")
+}
+
+enum LanguageLevel {
+  Beginner
+  Intermediate
+  Advanced
+  Native
+}
+
+model Language {
+  id    String        @id @default(cuid())
+  name  String
+  level LanguageLevel
+
+  resumeId String
+  resume   Resume @relation(fields: [resumeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([resumeId, name])
+  @@map("languages")
 }
