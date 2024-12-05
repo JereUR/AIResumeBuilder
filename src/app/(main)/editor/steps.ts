@@ -6,6 +6,7 @@ import EducationForm from "./forms/EducationForm"
 import SkillsForm from "./forms/SkillsForm"
 import SummaryForm from "./forms/SummaryForm"
 import LanguagesForm from "./forms/LanguagesForm"
+import PersonalProjectsForm from "./forms/PersonalProjectsForm"
 
 export const steps: {
   title: string
@@ -36,6 +37,11 @@ export const steps: {
     title: "Languages",
     component: LanguagesForm,
     key: "languages",
+  },
+  {
+    title: "Personal projects",
+    component: PersonalProjectsForm,
+    key: "personal-projects",
   },
   {
     title: "Skills",
