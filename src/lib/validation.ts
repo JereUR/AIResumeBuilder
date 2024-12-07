@@ -74,8 +74,8 @@ export const personalProjectsSchema = z.object({
         description: optionalString,
         startDate: optionalString,
         endDate: optionalString,
-        linkDeploy: z.string().url().trim().optional().or(z.literal("")),
-        linkCode: z.string().url().trim().optional().or(z.literal("")),
+        linkDeploy: z.string().url().trim().optional(),
+        linkCode: z.string().url().trim().optional(),
         technologies: z.array(z.string().trim()).optional(),
       }),
     )
@@ -105,7 +105,7 @@ export const languagesSchema = z.object({
         level: z.enum(languageLevels),
       }),
     )
-    .default([]),
+    .optional(),
 })
 
 export type LanguagesValues = z.infer<typeof languagesSchema>
