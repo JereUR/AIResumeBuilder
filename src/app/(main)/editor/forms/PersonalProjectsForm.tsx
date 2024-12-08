@@ -20,18 +20,21 @@ export default function PersonalProjectsForm({ resumeData, setResumeData }: Edit
 
   useEffect(() => {
     const { unsubscribe } = form.watch(async (values) => {
-      const isValid = await form.trigger()
-      if (!isValid) return
+      const isValid = await form.trigger();
+      if (!isValid) return;
       setResumeData({
         ...resumeData,
         projects: values.projects?.map((project) => ({
           ...project,
-          technologies: project?.technologies?.filter((tech) => tech !== undefined),
+          technologies: Array.isArray(project?.technologies)
+            ? project?.technologies.filter((tech): tech is string => !!tech)
+            : [],
         })) || [],
-      })
-    })
-    return unsubscribe
-  }, [form, resumeData, setResumeData])
+      });
+    });
+    return unsubscribe;
+  }, [form, resumeData, setResumeData]);
+
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
