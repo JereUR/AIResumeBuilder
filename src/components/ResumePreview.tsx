@@ -1,9 +1,12 @@
-import useDimensions from "@/hooks/useDimensions"
-import { cn } from "@/lib/utils"
-import { ResumeValues } from "@/lib/validation"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import { Github, Linkedin, Globe, MapPin, Phone, Mail } from 'lucide-react'
+import { formatDate } from 'date-fns'
+
+import useDimensions from "@/hooks/useDimensions"
+import { cn } from "@/lib/utils"
+import { ResumeValues } from "@/lib/validation"
+import { Badge } from "./ui/badge"
 
 interface ResumePreviewProps {
   resumeData: ResumeValues
@@ -20,6 +23,11 @@ export default function ResumePreview({ resumeData, className }: ResumePreviewPr
         zoom: (1 / 794) * width
       }}>
         <PersonalInfoHeader resumeData={resumeData} />
+        <SummarySection resumeData={resumeData} />
+        <WorkExperienceSection resumeData={resumeData} />
+        <EducationSection resumeData={resumeData} />
+        <ProjectsSection resumeData={resumeData} />
+        <SkillsSection resumeData={resumeData} />
       </div>
     </div>
   )
@@ -99,3 +107,174 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
   )
 }
 
+function SummarySection({ resumeData }: ResumeSectionProps) {
+  const { summary } = resumeData
+
+  if (!summary) return null
+
+  return <>
+    <hr className="border-2 border-gray-300" />
+    <div className="space-y-3 break-inside-avoid">
+      <p className="text-lg font-semibold">Professional profile</p>
+      <div className="whitespace-pre-line text-sm">{summary}</div>
+    </div>
+  </>
+}
+
+function WorkExperienceSection({ resumeData }: ResumeSectionProps) {
+  const { workExperiences } = resumeData
+
+  const workExperiencesNotEmpty = workExperiences?.filter((exp) => Object.values(exp).filter(Boolean).length > 0)
+
+  if (!workExperiencesNotEmpty?.length) return null
+
+  return <>
+    <hr className="border-2 border-gray-300" />
+    <div className="space-y-3">
+      <p className="text-lg font-semibold">Work Experience</p>
+      {workExperiencesNotEmpty.map((exp, index) => (
+        <div key={index} className="space-y-1 break-inside-avoid">
+          <div className="flex items-center text-sm font-semibold justify-between">
+            <span>{exp.position}</span>
+            {exp.startDate && (
+              <span>
+                {formatDate(exp.startDate, "MM/yyyy")} - {" "}
+                {exp.endDate ? formatDate(exp.endDate, "MM/yyyy") : "Present"}
+              </span>
+            )}
+          </div>
+          <p className="text-xs font-semibold">{exp.company}</p>
+          <div className="whitespace-pre-line text-xs">
+            {exp.description}
+          </div>
+        </div>
+      ))}
+    </div>
+  </>
+}
+
+function EducationSection({ resumeData }: ResumeSectionProps) {
+  const { educations } = resumeData
+
+  const educationsNotEmpty = educations?.filter((edu) => Object.values(edu).filter(Boolean).length > 0)
+
+  if (!educationsNotEmpty?.length) return null
+
+  return <>
+    <hr className="border-2 border-gray-300" />
+    <div className="space-y-3">
+      <p className="text-lg font-semibold">Education</p>
+      {educationsNotEmpty.map((edu, index) => (
+        <div key={index} className="space-y-1 break-inside-avoid">
+          <div className="flex items-center text-sm font-semibold justify-between">
+            <span>{edu.degree}</span>
+            {edu.startDate && (
+              <span>
+                {edu.startDate && `${formatDate(edu.startDate, "MM/yyyy")} ${edu.endDate ? `- ${formatDate(edu.endDate, "MM/yyyy")}` : ""}`}
+              </span>
+            )}
+          </div>
+          <p className="text-xs font-semibold">{edu.institution}</p>
+        </div>
+      ))}
+    </div>
+  </>
+}
+
+function SkillsSection({ resumeData }: ResumeSectionProps) {
+  const { skills, languages } = resumeData
+
+  if (!skills?.length && !languages?.length) return null
+
+  return (
+    <>
+      <hr className="border-2 border-gray-300" />
+      <div className="break-inside-avoid space-y-4">
+        <p className="text-lg font-semibold">Skills & Languages</p>
+        {skills && skills?.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold">Technical Skills</p>
+            <div className="flex break-inside-avoid flex-wrap gap-2">
+              {skills.map((skill, index) => (
+                <Badge key={index} className="bg-primary text-white rounded-md hover:bg-primary">{skill}</Badge>
+              ))}
+            </div>
+          </div>
+        )}
+        {languages && languages?.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold">Languages</p>
+            <div className="flex break-inside-avoid flex-wrap gap-2">
+              {languages.map((language, index) => (
+                <Badge key={index} className="bg-secondary text-secondary-foreground rounded-md hover:bg-secondary">
+                  {language.name} - {language.level}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+function ProjectsSection({ resumeData }: ResumeSectionProps) {
+  const { projects } = resumeData
+
+  if (!projects?.length) return null
+
+  return (
+    <>
+      <hr className="border-2 border-gray-300" />
+      <div className="space-y-3">
+        <p className="text-lg font-semibold">Personal Projects</p>
+        {projects.map((project, index) => (
+          <div key={index} className="space-y-2 break-inside-avoid mb-4">
+            <div className="flex items-center text-sm font-semibold justify-between">
+              <span>{project.name}</span>
+              {project.startDate && (
+                <span>
+                  {formatDate(project.startDate, "MM/yyyy")} - {" "}
+                  {project.endDate ? formatDate(project.endDate, "MM/yyyy") : "Present"}
+                </span>
+              )}
+            </div>
+            <div className="whitespace-pre-line text-xs font-normal">
+              {project.description}
+            </div>
+            {project.technologies && project.technologies.length > 0 && (
+              <div>
+                <span className="font-semibold text-sm">Technologies: </span>
+                <div className="flex break-inside-avoid flex-wrap gap-2 mt-1 text-xs">
+                  {project.technologies.map((tech, index) => (
+                    <Badge key={index} className="bg-primary text-white rounded-md hover:bg-primary">
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="flex flex-col gap-1 mt-1 text-sm">
+              {project.linkDeploy && (
+                <div>
+                  <span className="font-semibold">Live Demo: </span>
+                  <a href={project.linkDeploy} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    {project.linkDeploy}
+                  </a>
+                </div>
+              )}
+              {project.linkCode && (
+                <div>
+                  <span className="font-semibold">Source Code: </span>
+                  <a href={project.linkCode} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    {project.linkCode}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}
