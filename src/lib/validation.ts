@@ -74,8 +74,8 @@ export const personalProjectsSchema = z.object({
         description: optionalString,
         startDate: optionalString,
         endDate: optionalString,
-        linkDeploy: z.string().url().trim().optional(),
-        linkCode: z.string().url().trim().optional(),
+        linkDeploy: z.string().url().trim().optional().or(z.literal("")),
+        linkCode: z.string().url().trim().optional().or(z.literal("")),
         technologies: z.array(z.string().trim()).optional(),
       }),
     )
