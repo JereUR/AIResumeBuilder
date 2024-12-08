@@ -34,11 +34,6 @@ export const steps: {
     key: "education",
   },
   {
-    title: "Languages",
-    component: LanguagesForm,
-    key: "languages",
-  },
-  {
     title: "Personal projects",
     component: PersonalProjectsForm,
     key: "personal-projects",
@@ -47,6 +42,11 @@ export const steps: {
     title: "Skills",
     component: SkillsForm,
     key: "skills",
+  },
+  {
+    title: "Languages",
+    component: LanguagesForm,
+    key: "languages",
   },
   {
     title: "Summary",
