@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs"
 import { ThemeProvider } from "next-themes"
 
 import "./globals.css"
+import { Toaster } from "@/components/ui/toaster"
 
 const nunito = Nunito({
   weight: ["200", "300", "400", "500", "600", "700", "800", "900", "1000"],
@@ -114,6 +115,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>
