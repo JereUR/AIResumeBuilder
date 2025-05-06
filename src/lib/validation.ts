@@ -29,7 +29,7 @@ export const personalInfoSchema = z.object({
   phone: optionalString,
   email: optionalString,
   websiteUrl: z.string().url().trim().optional().or(z.literal("")),
-  linkedinUrl: z.string().url().trim().optional().or(z.literal("")),
+  linkedInUrl: z.string().url().trim().optional().or(z.literal("")),
   githubUrl: z.string().url().trim().optional().or(z.literal("")),
 })
 
@@ -67,7 +67,7 @@ export const educationSchema = z.object({
 export type EducationValues = z.infer<typeof educationSchema>
 
 export const personalProjectsSchema = z.object({
-  projects: z
+  personalProjects: z
     .array(
       z.object({
         name: optionalString,
