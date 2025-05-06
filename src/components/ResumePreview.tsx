@@ -39,7 +39,7 @@ interface ResumeSectionProps {
 }
 
 function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
-  const { photo, firstName, lastName, jobTitle, city, country, phone, email, githubUrl, linkedinUrl, websiteUrl, colorHex, borderStyle } = resumeData
+  const { photo, firstName, lastName, jobTitle, city, country, phone, email, githubUrl, linkedInUrl, websiteUrl, colorHex, borderStyle } = resumeData
 
   const [photoSrc, setPhotoSrc] = useState(photo instanceof File ? "" : photo)
 
@@ -60,7 +60,7 @@ function PersonalInfoHeader({ resumeData }: ResumeSectionProps) {
 
   const socialLinks = [
     { url: githubUrl, icon: Github, label: 'GitHub' },
-    { url: linkedinUrl, icon: Linkedin, label: 'LinkedIn' },
+    { url: linkedInUrl, icon: Linkedin, label: 'LinkedIn' },
     { url: websiteUrl, icon: Globe, label: 'Website' }
   ].filter(link => link.url)
 
@@ -225,16 +225,16 @@ function SkillsSection({ resumeData }: ResumeSectionProps) {
 }
 
 function ProjectsSection({ resumeData }: ResumeSectionProps) {
-  const { projects, colorHex, borderStyle } = resumeData
+  const { personalProjects, colorHex, borderStyle } = resumeData
 
-  if (!projects?.length) return null
+  if (!personalProjects?.length) return null
 
   return (
     <>
       <hr className="border-2 border-gray-300" style={{ borderColor: colorHex }} />
       <div className="space-y-3">
         <p className="text-lg font-semibold" style={{ color: colorHex }}>Personal Projects</p>
-        {projects.map((project, index) => (
+        {personalProjects.map((project, index) => (
           <div key={index} className="space-y-2 break-inside-avoid mb-4">
             <div className="flex items-center text-sm font-semibold justify-between" style={{ color: colorHex }}>
               <span>{project.name}</span>

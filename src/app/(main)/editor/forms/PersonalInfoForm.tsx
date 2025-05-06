@@ -33,7 +33,7 @@ export default function PersonalInfoForm({
       city: resumeData.city || "",
       country: resumeData.country || "",
       githubUrl: resumeData.githubUrl || "",
-      linkedinUrl: resumeData.linkedinUrl || "",
+      linkedInUrl: resumeData.linkedInUrl || "",
       websiteUrl: resumeData.websiteUrl || "",
     },
   })
@@ -199,7 +199,7 @@ export default function PersonalInfoForm({
           />
           <FormField
             control={form.control}
-            name="linkedinUrl"
+            name="linkedInUrl"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Linkedin URL <span className="text-muted-foreground">*</span></FormLabel>

@@ -19,7 +19,7 @@ export default function PersonalProjectsForm({ resumeData, setResumeData }: Edit
   const form = useForm<PersonalProjectsValues>({
     resolver: zodResolver(personalProjectsSchema),
     defaultValues: {
-      projects: resumeData.projects || [],
+      personalProjects: resumeData.personalProjects || [],
     },
   })
 
@@ -29,7 +29,7 @@ export default function PersonalProjectsForm({ resumeData, setResumeData }: Edit
       if (!isValid) return;
       setResumeData({
         ...resumeData,
-        projects: values.projects?.map((project) => ({
+        personalProjects: values.personalProjects?.map((project) => ({
           ...project,
           technologies: Array.isArray(project?.technologies)
             ? project?.technologies.filter((tech): tech is string => !!tech)
@@ -43,7 +43,7 @@ export default function PersonalProjectsForm({ resumeData, setResumeData }: Edit
 
   const { fields, append, remove, move } = useFieldArray({
     control: form.control,
-    name: "projects",
+    name: "personalProjects",
   })
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }))
@@ -110,7 +110,7 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
     </div>
     <FormField
       control={form.control}
-      name={`projects.${index}.name`}
+      name={`personalProjects.${index}.name`}
       render={({ field }) => (
         <FormItem>
           <FormLabel>Nombre</FormLabel>
@@ -123,7 +123,7 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
     />
     <FormField
       control={form.control}
-      name={`projects.${index}.description`}
+      name={`personalProjects.${index}.description`}
       render={({ field }) => (
         <FormItem>
           <FormLabel>Description</FormLabel>
@@ -137,7 +137,7 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
     <div className="grid grid-cols-2 gap-3">
       <FormField
         control={form.control}
-        name={`projects.${index}.startDate`}
+        name={`personalProjects.${index}.startDate`}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Start date</FormLabel>
@@ -150,7 +150,7 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
       />
       <FormField
         control={form.control}
-        name={`projects.${index}.endDate`}
+        name={`personalProjects.${index}.endDate`}
         render={({ field }) => (
           <FormItem>
             <FormLabel>End date</FormLabel>
@@ -167,7 +167,7 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
     </FormDescription>
     <FormField
       control={form.control}
-      name={`projects.${index}.linkCode`}
+      name={`personalProjects.${index}.linkCode`}
       render={({ field }) => (
         <FormItem>
           <FormLabel>Code link  <span className="text-muted-foreground">*</span></FormLabel>
@@ -180,7 +180,7 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
     />
     <FormField
       control={form.control}
-      name={`projects.${index}.linkDeploy`}
+      name={`personalProjects.${index}.linkDeploy`}
       render={({ field }) => (
         <FormItem>
           <FormLabel>Deploy link  <span className="text-muted-foreground">*</span></FormLabel>
@@ -196,7 +196,7 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
     </FormDescription>
     <FormField
       control={form.control}
-      name={`projects.${index}.technologies`}
+      name={`personalProjects.${index}.technologies`}
       render={({ field }) => (
         <FormItem>
           <FormLabel>Technologies</FormLabel>
