@@ -6,6 +6,7 @@ import { EditorFormProps } from "@/lib/types"
 import { summarySchema, SummaryValues } from "@/lib/validation"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
+/* import GenerateSummaryButton from "./GenerateSummaryButton" */
 
 export default function SummaryForm({ resumeData, setResumeData }: EditorFormProps) {
   const form = useForm<SummaryValues>({
@@ -42,6 +43,8 @@ export default function SummaryForm({ resumeData, setResumeData }: EditorFormPro
                   <Textarea {...field} placeholder="A brief, engaging text about yourself" />
                 </FormControl>
                 <FormMessage />
+                { /* Not allowed */}
+                {/* <GenerateSummaryButton resumeData={resumeData} onSummaryGenerated={summary => form.setValue("summary", summary)} /> */}
               </FormItem>
             )}
           />
