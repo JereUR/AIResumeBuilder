@@ -1,11 +1,11 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
+import { useState } from "react"
 
 import { steps } from "./steps"
 import Breadcrumbs from "./Breadcrumbs"
 import Footer from "./Footer"
-import { useState } from "react"
 import { ResumeValues } from "@/lib/validation"
 import ResumePreviewSection from "./ResumePreviewSection"
 import { cn, mapToResumeValues } from "@/lib/utils"
