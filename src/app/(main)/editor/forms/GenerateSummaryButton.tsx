@@ -20,6 +20,10 @@ export default function GenerateSummaryButton({ resumeData, onSummaryGenerated }
     try {
       setLoading(true)
 
+      toast({
+        description: "Functionality not implemented due to lack of budget",
+      })
+
       const aiResponse = await generateSummary(resumeData)
       onSummaryGenerated(aiResponse)
     } catch (error) {
