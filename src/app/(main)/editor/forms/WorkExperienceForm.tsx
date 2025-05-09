@@ -14,6 +14,7 @@ import { GripHorizontal } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import GenerateWorkExperienceButton from "./GenerateWorkExperienceButton"
 
 export default function WorkExperienceForm({
   resumeData,
@@ -102,6 +103,13 @@ function WorkExperienceItem({ id, form, index, remove }: WorkExperienceItemProps
       <span className="font-semibold">Work experience {index + 1}</span>
       <GripHorizontal className="size-5 cursor-grab text-muted-foreground focus:outline-none"
         {...attributes} {...listeners}
+      />
+    </div>
+    <div className="flex justify-center">
+      <GenerateWorkExperienceButton
+        onWorkExperienceGenerated={(exp) =>
+          form.setValue(`workExperiences.${index}`, exp)
+        }
       />
     </div>
     <FormField

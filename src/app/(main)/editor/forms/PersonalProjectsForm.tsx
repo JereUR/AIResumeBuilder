@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import GeneratePersonalProjectButton from "./GeneratePersonalProjectButton"
 
 export default function PersonalProjectsForm({ resumeData, setResumeData }: EditorFormProps) {
   const form = useForm<PersonalProjectsValues>({
@@ -107,6 +108,11 @@ function ProjectItem({ id, form, index, remove }: ProjectItemProps) {
       <span className="font-semibold">Project {index + 1}</span>
       <GripHorizontal className="size-5 cursor-grab text-muted-foreground focus:outline-none"
         {...attributes} {...listeners} />
+    </div>
+    <div className="flex justify-center">
+      <GeneratePersonalProjectButton
+        onPersonalProjectGenerated={(pro) => form.setValue(`personalProjects.${index}`, pro)}
+      />
     </div>
     <FormField
       control={form.control}
