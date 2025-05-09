@@ -51,6 +51,10 @@ export const workExperienceSchema = z.object({
 
 export type WorkExperienceValues = z.infer<typeof workExperienceSchema>
 
+export type WorkExperience = NonNullable<
+  z.infer<typeof workExperienceSchema>["workExperiences"]
+>[number]
+
 export const educationSchema = z.object({
   educations: z
     .array(
@@ -84,6 +88,10 @@ export const personalProjectsSchema = z.object({
 
 export type PersonalProjectsValues = z.infer<typeof personalProjectsSchema>
 
+export type PersonalProject = NonNullable<
+  z.infer<typeof personalProjectsSchema>["personalProjects"]
+>[number]
+
 export const skillsSchema = z.object({
   skills: z.array(z.string().trim()).optional(),
 })
@@ -109,6 +117,10 @@ export const languagesSchema = z.object({
 })
 
 export type LanguagesValues = z.infer<typeof languagesSchema>
+
+export type Language = NonNullable<
+  z.infer<typeof languagesSchema>["languages"]
+>[number]
 
 export const summarySchema = z.object({
   summary: optionalString,
@@ -144,6 +156,18 @@ export const generateWorkExperienceSchema = z.object({
 
 export type GenerateWorkExperienceInput = z.infer<
   typeof generateWorkExperienceSchema
+>
+
+export const generatePersonalProjectSchema = z.object({
+  description: z
+    .string()
+    .trim()
+    .min(1, "Description is required")
+    .min(20, "Description must be at least 20 characters long"),
+})
+
+export type GeneratePersonalProjectInput = z.infer<
+  typeof generatePersonalProjectSchema
 >
 
 export const generateSummarySchema = z.object({
