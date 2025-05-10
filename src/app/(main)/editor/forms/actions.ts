@@ -2,15 +2,51 @@
 
 import openai from "@/lib/openai"
 import {
-  GeneratePersonalProjectInput,
+  type GeneratePersonalProjectInput,
   generatePersonalProjectSchema,
-  GenerateSummaryInput,
+  type GenerateSummaryInput,
   generateSummarySchema,
-  GenerateWorkExperienceInput,
+  type GenerateWorkExperienceInput,
   generateWorkExperienceSchema,
-  PersonalProject,
-  WorkExperience,
+  type PersonalProject,
+  type WorkExperience,
 } from "@/lib/validation"
+
+interface OpenAIErrorResponse {
+  status?: number
+  statusText?: string
+  response?: {
+    data?: {
+      error?: {
+        message?: string
+      }
+    }
+  }
+  error?: {
+    message?: string
+  }
+  message?: string
+}
+
+function getOpenAIErrorMessage(error: OpenAIErrorResponse): string {
+  if (error?.response?.data?.error?.message) {
+    return `OpenAI API: ${error.response.data.error.message}`
+  }
+
+  if (error?.error?.message) {
+    return `OpenAI API: ${error.error.message}`
+  }
+
+  if (error?.status === 429) {
+    return "OpenAI API: Rate limit exceeded. Please try again later."
+  }
+
+  if (error?.message) {
+    return error.message
+  }
+
+  return "Something went wrong with the AI generation. Please try again."
+}
 
 export async function generateSummary(input: GenerateSummaryInput) {
   const {
@@ -83,24 +119,26 @@ export async function generateSummary(input: GenerateSummaryInput) {
       .join("\n")}
   `
 
-  console.log("systemMessage", systemMessage)
-  console.log("userMessage", userMessage)
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: userMessage },
+      ],
+    })
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: systemMessage },
-      { role: "user", content: userMessage },
-    ],
-  })
+    const aiResponse = completion.choices[0].message.content
 
-  const aiResponse = completion.choices[0].message.content
+    if (!aiResponse) {
+      throw new Error("Failed to generate AI response")
+    }
 
-  if (!aiResponse) {
-    throw new Error("Failed to generate AI response")
+    return aiResponse
+  } catch (error: unknown) {
+    console.error("Error generating summary:", error)
+    throw new Error(getOpenAIErrorMessage(error as OpenAIErrorResponse))
   }
-
-  return aiResponse
 }
 
 export async function generateWorkExperience(
@@ -121,27 +159,34 @@ export async function generateWorkExperience(
   const userMessage = `Please generate a work experience entry from this description: ${description || "N/A"}
   `
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: systemMessage },
-      { role: "user", content: userMessage },
-    ],
-  })
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: userMessage },
+      ],
+    })
 
-  const aiResponse = completion.choices[0].message.content
+    const aiResponse = completion.choices[0].message.content
 
-  if (!aiResponse) {
-    throw new Error("Failed to generate AI response")
+    if (!aiResponse) {
+      throw new Error("Failed to generate AI response")
+    }
+
+    return {
+      position: aiResponse.match(/Job title: *(.*)/)?.[1] || "",
+      company: aiResponse.match(/Company: *(.*)/)?.[1] || "",
+      startDate: aiResponse.match(/Start date: (\d{4}-\d{2}-\d{2})/)?.[1],
+      endDate: aiResponse.match(/End date: (\d{4}-\d{2}-\d{2})/)?.[1],
+      description: (
+        aiResponse.match(/Description:([\s\S]*)/)?.[1] || ""
+      ).trim(),
+    } satisfies WorkExperience
+  } catch (error: unknown) {
+    console.error("Error generating work experience:", error)
+    throw new Error(getOpenAIErrorMessage(error as OpenAIErrorResponse))
   }
-
-  return {
-    position: aiResponse.match(/Job title: *(.*)/)?.[1] || "",
-    company: aiResponse.match(/Company: *(.*)/)?.[1] || "",
-    startDate: aiResponse.match(/Start date: (\d{4}-\d{2}-\d{2})/)?.[1],
-    endDate: aiResponse.match(/End date: (\d{4}-\d{2}-\d{2})/)?.[1],
-    description: (aiResponse.match(/Description:([\s\S]*)/)?.[1] || "").trim(),
-  } satisfies WorkExperience
 }
 
 export async function generatePersonalProject(
@@ -164,29 +209,36 @@ export async function generatePersonalProject(
   const userMessage = `Please generate a personal project entry from this description: ${description || "N/A"}
   `
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: systemMessage },
-      { role: "user", content: userMessage },
-    ],
-  })
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: userMessage },
+      ],
+    })
 
-  const aiResponse = completion.choices[0].message.content
+    const aiResponse = completion.choices[0].message.content
 
-  if (!aiResponse) {
-    throw new Error("Failed to generate AI response")
+    if (!aiResponse) {
+      throw new Error("Failed to generate AI response")
+    }
+
+    return {
+      name: aiResponse.match(/Name: *(.*)/)?.[1] || "",
+      startDate: aiResponse.match(/Start date: (\d{4}-\d{2}-\d{2})/)?.[1],
+      endDate: aiResponse.match(/End date: (\d{4}-\d{2}-\d{2})/)?.[1],
+      description: (
+        aiResponse.match(/Description:([\s\S]*)/)?.[1] || ""
+      ).trim(),
+      linkDeploy: aiResponse.match(/Link to deploy: *(.*)/)?.[1] || "",
+      linkCode: aiResponse.match(/Link to code: *(.*)/)?.[1] || "",
+      technologies: aiResponse
+        .match(/Technologies used:([\s\S]*)/)?.[1]
+        ?.split(","),
+    } satisfies PersonalProject
+  } catch (error: unknown) {
+    console.error("Error generating personal project:", error)
+    throw new Error(getOpenAIErrorMessage(error as OpenAIErrorResponse))
   }
-
-  return {
-    name: aiResponse.match(/Name: *(.*)/)?.[1] || "",
-    startDate: aiResponse.match(/Start date: (\d{4}-\d{2}-\d{2})/)?.[1],
-    endDate: aiResponse.match(/End date: (\d{4}-\d{2}-\d{2})/)?.[1],
-    description: (aiResponse.match(/Description:([\s\S]*)/)?.[1] || "").trim(),
-    linkDeploy: aiResponse.match(/Link to deploy: *(.*)/)?.[1] || "",
-    linkCode: aiResponse.match(/Link to code: *(.*)/)?.[1] || "",
-    technologies: aiResponse
-      .match(/Technologies used:([\s\S]*)/)?.[1]
-      ?.split(","),
-  } satisfies PersonalProject
 }
