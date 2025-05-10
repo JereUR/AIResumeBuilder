@@ -1,16 +1,18 @@
+"use client"
+
 import { WandSparkles } from "lucide-react"
 import { useState } from "react"
-import { Form, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
-import { GenerateWorkExperienceInput, generateWorkExperienceSchema, WorkExperience } from "@/lib/validation"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { type GenerateWorkExperienceInput, generateWorkExperienceSchema, type WorkExperience } from "@/lib/validation"
 import { generateWorkExperience } from "./actions"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
 import LoadingButton from "@/components/LoadingButton"
+import { Form, FormItem, FormLabel, FormControl, FormMessage, FormField } from "@/components/ui/form"
 
 interface GenerateWorkExperienceButtonProps {
   onWorkExperienceGenerated: (workExperience: WorkExperience) => void
@@ -21,14 +23,18 @@ export default function GenerateWorkExperienceButton({ onWorkExperienceGenerated
 
   return (
     <>
-      <Button variant='outline' type="button" onClick={() => setShowInputDialog(true)}>
+      <Button variant="outline" type="button" onClick={() => setShowInputDialog(true)}>
         <WandSparkles className="size-4" />
         Smart fill (AI)
       </Button>
-      <InputDialog open={showInputDialog} onOpenChange={setShowInputDialog} onWorkExperienceGenerated={(workExperience) => {
-        onWorkExperienceGenerated(workExperience)
-        setShowInputDialog(false)
-      }} />
+      <InputDialog
+        open={showInputDialog}
+        onOpenChange={setShowInputDialog}
+        onWorkExperienceGenerated={(workExperience) => {
+          onWorkExperienceGenerated(workExperience)
+          setShowInputDialog(false)
+        }}
+      />
     </>
   )
 }
@@ -46,23 +52,18 @@ function InputDialog({ open, onOpenChange, onWorkExperienceGenerated }: InputDia
     resolver: zodResolver(generateWorkExperienceSchema),
     defaultValues: {
       description: "",
-    }
+    },
   })
 
   async function onSubmit(input: GenerateWorkExperienceInput) {
     try {
-      toast({
-        description: "Functionality not implemented due to lack of budget",
-      })
-
       const response = await generateWorkExperience(input)
       onWorkExperienceGenerated(response)
-
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(error)
       toast({
         variant: "destructive",
-        description: "Something went wrong. Please try again."
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
       })
     }
   }
@@ -77,18 +78,28 @@ function InputDialog({ open, onOpenChange, onWorkExperienceGenerated }: InputDia
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder={`E.g. "from nov 2019 to dec 2020 I worked at Google as a software engineer, task were: ..."`} autoFocus />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <LoadingButton type="submit" loading={form.formState.isSubmitting}>Generate</LoadingButton>
-          </form>
+          <div className="space-y-3">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder={`E.g. "from nov 2019 to dec 2020 I worked at Google as a software engineer, task were: ..."`}
+                      autoFocus
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <LoadingButton type="button" onClick={form.handleSubmit(onSubmit)} loading={form.formState.isSubmitting}>
+              Generate
+            </LoadingButton>
+          </div>
         </Form>
       </DialogContent>
     </Dialog>
