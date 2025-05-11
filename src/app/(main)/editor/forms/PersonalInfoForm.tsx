@@ -2,26 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { personalInfoSchema, PersonalInfoValues } from "@/lib/validation"
-import { EditorFormProps } from "@/lib/types"
+import { personalInfoSchema, type PersonalInfoValues } from "@/lib/validation"
+import type { EditorFormProps } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 
-export default function PersonalInfoForm({
-  resumeData,
-  setResumeData,
-}: EditorFormProps) {
+export default function PersonalInfoForm({ resumeData, setResumeData }: EditorFormProps) {
   const form = useForm<PersonalInfoValues>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
@@ -48,6 +37,35 @@ export default function PersonalInfoForm({
   }, [form, resumeData, setResumeData])
 
   const photoInputRef = useRef<HTMLInputElement>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    typeof resumeData.photo === "string" ? resumeData.photo : null,
+  )
+  const [isUploading, setIsUploading] = useState(false)
+
+  const handlePhotoChange = (file: File | null) => {
+    if (file) {
+      const objectUrl = URL.createObjectURL(file)
+      setPreviewUrl(objectUrl)
+      setIsUploading(true)
+
+      setResumeData({ ...resumeData, photo: file })
+
+      setTimeout(() => {
+        setIsUploading(false)
+      }, 1000)
+    } else {
+      setPreviewUrl(null)
+      setResumeData({ ...resumeData, photo: null })
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
 
   return (
     <div className="custom-scrollbar mx-auto max-w-xl space-y-6">
@@ -57,38 +75,37 @@ export default function PersonalInfoForm({
       </div>
       <Form {...form}>
         <form className="space-y-4">
-          <FormField
-            control={form.control}
-            name="photo"
-            render={({ field: { value, ...fieldValues } }) => (
-              <FormItem>
-                <FormLabel>Your photo</FormLabel>
-                <div className="flex items-center gap-2">
-                  <FormControl>
-                    <Input
-                      {...fieldValues}
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        fieldValues.onChange(file)
-                      }}
-                      ref={photoInputRef}
-                    />
-                  </FormControl>
-                  <Button variant='secondary' type="button" onClick={() => {
-                    fieldValues.onChange(null)
+          <FormItem>
+            <FormLabel>Your photo</FormLabel>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null
+                    handlePhotoChange(file)
+                  }}
+                  ref={photoInputRef}
+                  disabled={isUploading}
+                />
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => {
+                    handlePhotoChange(null)
                     if (photoInputRef.current) {
-                      photoInputRef.current.value = ''
+                      photoInputRef.current.value = ""
                     }
-                  }}>
-                    Remove
-                  </Button>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  }}
+                  disabled={isUploading || !previewUrl}
+                >
+                  Remove
+                </Button>
+              </div>
+            </div>
+            <FormDescription>Upload a square image for best results. Maximum size: 1MB.</FormDescription>
+          </FormItem>
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -189,7 +206,9 @@ export default function PersonalInfoForm({
             name="githubUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Github URL <span className="text-muted-foreground">*</span></FormLabel>
+                <FormLabel>
+                  Github URL <span className="text-muted-foreground">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -202,7 +221,9 @@ export default function PersonalInfoForm({
             name="linkedInUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Linkedin URL <span className="text-muted-foreground">*</span></FormLabel>
+                <FormLabel>
+                  Linkedin URL <span className="text-muted-foreground">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -215,7 +236,9 @@ export default function PersonalInfoForm({
             name="websiteUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Website URL <span className="text-muted-foreground">*</span></FormLabel>
+                <FormLabel>
+                  Website URL <span className="text-muted-foreground">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -224,7 +247,8 @@ export default function PersonalInfoForm({
             )}
           />
           <FormDescription>
-            * Please enter a valid URL, starting with <strong>http://</strong> or <strong>https://</strong>. For example: <em>https://www.example.com</em>.
+            * Please enter a valid URL, starting with <strong>http://</strong> or <strong>https://</strong>. For
+            example: <em>https://www.example.com</em>.
           </FormDescription>
         </form>
       </Form>
