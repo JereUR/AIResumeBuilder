@@ -1,9 +1,18 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { ResumeValues } from "@/lib/validation"
+import type { ResumeValues } from "@/lib/validation"
+import { auth } from "@clerk/nextjs/server"
+import { del, put } from "@vercel/blob"
+import path from "path"
 
 export async function saveResume(values: ResumeValues) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    throw new Error("User not authenticated")
+  }
+
   const {
     id,
     title,
@@ -29,7 +38,32 @@ export async function saveResume(values: ResumeValues) {
     personalProjects,
   } = values
 
-  const photoUrl = typeof photo === "string" ? photo : undefined
+  const existingResume = id
+    ? await prisma.resume.findUnique({ where: { id, userId } })
+    : null
+
+  if (id && !existingResume) {
+    throw new Error("Resume not found")
+  }
+
+  let newPhotoUrl: string | undefined | null = undefined
+
+  if (photo instanceof File) {
+    if (existingResume?.photoUrl) {
+      await del(existingResume.photoUrl)
+    }
+
+    const blob = await put(`resume_photos/${path.extname(photo.name)}`, photo, {
+      access: "public",
+    })
+
+    newPhotoUrl = blob.url
+  } else if (photo === null) {
+    if (existingResume?.photoUrl) {
+      await del(existingResume.photoUrl)
+    }
+    newPhotoUrl = null
+  }
 
   const parsedWorkExperiences = (workExperiences ?? []).map((exp) => ({
     company: exp.company ?? "",
@@ -71,7 +105,7 @@ export async function saveResume(values: ResumeValues) {
       technologies: project.technologies ?? [],
     }))
 
-  const data = {
+  const commonData = {
     title,
     description,
     firstName,
@@ -84,33 +118,63 @@ export async function saveResume(values: ResumeValues) {
     websiteUrl,
     linkedInUrl,
     githubUrl,
-    photoUrl,
-    skills,
-    borderStyle,
-    colorHex,
+    photoUrl: newPhotoUrl,
+    skills: skills || [],
+    borderStyle: borderStyle || "squircle",
+    colorHex: colorHex || "#000000",
     summary,
     updatedAt: new Date(),
-    workExperiences: {
-      deleteMany: {},
-      create: parsedWorkExperiences,
-    },
-    educations: {
-      deleteMany: {},
-      create: parsedEducations,
-    },
-    languages: {
-      deleteMany: {},
-      create: parsedLanguages,
-    },
-    personalProjects: {
-      deleteMany: {},
-      create: parsedProjects,
-    },
+  }
+
+  if (!id) {
+    const newResume = await prisma.resume.create({
+      data: {
+        ...commonData,
+        userId,
+        workExperiences: {
+          create: parsedWorkExperiences,
+        },
+        educations: {
+          create: parsedEducations,
+        },
+        languages: {
+          create: parsedLanguages,
+        },
+        personalProjects: {
+          create: parsedProjects,
+        },
+      },
+      include: {
+        workExperiences: true,
+        educations: true,
+        languages: true,
+        personalProjects: true,
+      },
+    })
+    return newResume
   }
 
   const updatedResume = await prisma.resume.update({
     where: { id },
-    data,
+    data: {
+      ...commonData,
+      workExperiences: {
+        deleteMany: {},
+        create: parsedWorkExperiences,
+      },
+      educations: {
+        deleteMany: {},
+        create: parsedEducations,
+      },
+      languages: {
+        deleteMany: {},
+        create: parsedLanguages,
+      },
+      personalProjects: {
+        deleteMany: {},
+        create: parsedProjects,
+      },
+    },
     include: {
       workExperiences: true,
       educations: true,
