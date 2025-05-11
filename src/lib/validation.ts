@@ -143,7 +143,6 @@ export const resumeSchema = z.object({
 
 export type ResumeValues = Omit<z.infer<typeof resumeSchema>, "photo"> & {
   id?: string
-  userId: string
   photo?: File | string | null
 }
 
